@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path fill="#6750A4" d="M50,10 a40,40 0 1,1 0,80 a40,40 0 1,1 0,-80 M50,20 a30,30 0 1,0 0,60 a30,30 0 1,0 0,-60"/>
+  <path fill="#FFFFFF" d="M40,35 h20 v10 h-20 z M40,55 h20 v10 h-20 z"/>
+</svg>

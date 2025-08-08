@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneLink - Share everything with one link</title>
+    <meta name="description" content="A modern, secure, and free short link service running entirely on the Cloudflare ecosystem.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OneLink</h1>
+            <p>Share everything with one link.</p>
+            <button id="theme-toggle">🌙</button>
+        </header>
+
+        <main>
+            <div class="card access-card">
+                <input type="text" id="access-code" placeholder="输入短代码或粘贴长链接...">
+                <button id="go-btn">Go</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="link">🔗 链接</button>
+                <button class="tab-btn" data-tab="message">📝 消息</button>
+                <button class="tab-btn" data-tab="file">📄 文件</button>
+            </div>
+
+            <div id="link" class="tab-content active">
+                <input type="url" id="url-input" placeholder="https://example.com">
+            </div>
+            <div id="message" class="tab-content">
+                <textarea id="message-input" rows="5" placeholder="在此输入你的文本或代码片段..."></textarea>
+            </div>
+            <div id="file" class="tab-content">
+                <input type="file" id="file-input">
+                <p class="file-info">最大 25MB, 24小时后自动删除。</p>
+            </div>
+
+            <div class="options">
+                <input type="text" id="custom-code" placeholder="自定义短代码 (可选)">
+                <input type="password" id="password" placeholder="设置密码 (可选)">
+                <label><input type="checkbox" id="one-time"> 阅后即焚</label>
+            </div>
+            
+            <!-- Cloudflare Turnstile Widget -->
+            <div id="turnstile-widget"></div>
+
+            <button id="create-btn" class="create-btn">生成分享链接</button>
+
+            <div id="result" class="result-card" style="display: none;">
+                <h3>成功！</h3>
+                <div class="result-link-container">
+                    <input type="text" id="result-url" readonly>
+                    <button id="copy-btn">复制</button>
+                </div>
+                <div id="qrcode"></div>
+                <p><a id="info-link" href="#" target="_blank">查看统计信息</a></p>
+            </div>
+            
+            <div id="error-message" class="error-card" style="display: none;"></div>
+
+        </main>
+
+        <footer>
+            <p>Powered by Cloudflare. Design with ❤️.</p>
+        </footer>
+    </div>
+    <script src="script.js" type="module"></script>
+</body>
+</html>
