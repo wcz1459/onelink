@@ -3,7 +3,7 @@
 // 在你的 wrangler.toml 中设置 TURNSTILE_SITE_KEY 后，
 // Pages 会自动将其注入到前端，我们不需要在这里硬编码。
 // 但如果注入失败，可以手动替换下面的值作为备用方案。
-// const TURNSTILE_SITE_KEY = 'YOUR_TURNSTILE_SITE_KEY';
+const TURNSTILE_SITE_KEY = '0x4AAAAAABpUuSS5NWXiCyXD';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 主题切换
