@@ -2,7 +2,7 @@
 
 // --- 类型和接口定义 ---
 interface ShareItem {
-	type: 'url' | 'message' | 'file';
+	type: 'link' | 'message' | 'file';
 	target?: string;
 	content?: string;
 	filename?: string;
@@ -71,7 +71,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 			const item: ShareItem = { type, oneTime, createdAt: new Date().toISOString(), views: 0 };
 			if (password) { item.password = password; }
 			switch (type) {
-				case 'url':
+				case 'link':
     let targetUrl = formData.get('target') as string;
     if (!targetUrl) {
         return new Response(JSON.stringify({ error: 'URL cannot be empty.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
@@ -158,7 +158,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 				return new Response('Sorry, this file has expired and been deleted.', { status: 410 });
 			}
 			switch (data.type) {
-				case 'url':
+				case 'link':
 					return Response.redirect(data.target!, 302);
 				case 'message':
 					return new Response(renderMessage(data.content!), { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
