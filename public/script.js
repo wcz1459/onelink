@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 渲染 Turnstile
     // Pages 部署时会自动注入一个包含 sitekey 的全局对象
     // 我们从那里安全地获取 sitekey
-    let turnstileSiteKey = '1x00000000000000000000AA'; // 这是一个用于测试的、总会失败的 key
+    let turnstileSiteKey = '0x4AAAAAABpUuSS5NWXiCyXD'; // 这是一个用于测试的、总会失败的 key
     if (window.CFFeatureFlags && window.CFFeatureFlags.turnstile) {
         turnstileSiteKey = window.CFFeatureFlags.turnstile.sitekey;
     }
