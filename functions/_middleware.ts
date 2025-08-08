@@ -146,12 +146,20 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 			}
 			data.views += 1;
 			if (data.oneTime) {
-				await env.LINKS_KV.delete(code);
-				if (data.type === 'file') { await env.FILES_R2.delete(code); }
-			} else {
-				const expiration = data.expiresAt ? { expirationTtl: Math.ceil((data.expiresAt - Date.now()) / 1000) } : {};
-				await env.LINKS_KV.put(code, JSON.stringify(data), expiration);
-			}
+    // 把删除操作放进 waitUntil 里，让它在后台执行
+    // 这样我们的函数就可以立刻返回重定向，而不用等待删除完成
+    const deletePromise = async () => {
+        await env.LINKS_KV.delete(code);
+        if (data.type === 'file') {
+            await env.FILES_R2.delete(code);
+        }
+    };
+    context.waitUntil(deletePromise());
+} else {
+    // 对于非阅后即焚的链接，我们仍然需要 await，因为我们要更新访问次数
+    const expiration = data.expiresAt ? { expirationTtl: Math.ceil((data.expiresAt - Date.now()) / 1000) } : {};
+    await env.LINKS_KV.put(code, JSON.stringify(data), expiration);
+}
 			if (data.type === 'file' && data.expiresAt && Date.now() > data.expiresAt) {
 				await env.LINKS_KV.delete(code);
 				await env.FILES_R2.delete(code);
