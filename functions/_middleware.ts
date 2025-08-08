@@ -72,10 +72,26 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 			if (password) { item.password = password; }
 			switch (type) {
 				case 'link':
-					const targetUrl = formData.get('target') as string;
-                    if (!targetUrl || !/^https?:\/\//.test(targetUrl)) { return new Response(JSON.stringify({ error: 'Invalid URL format.' }), { status: 400, headers: { 'Content-Type': 'application/json' } }); }
-					item.target = targetUrl;
-					break;
+    let targetUrl = formData.get('target') as string;
+    if (!targetUrl) {
+        return new Response(JSON.stringify({ error: 'URL cannot be empty.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    // 如果用户输入的 URL 既不以 http:// 也不以 https:// 开头
+    if (!/^https?:\/\//i.test(targetUrl)) {
+        // 我们就默认给它加上 https://
+        targetUrl = 'https://' + targetUrl;
+    }
+
+    // 补全后再进行一次最终的、更宽松的 URL 格式验证
+    try {
+        new URL(targetUrl); // 尝试用标准的 URL 解析器来验证格式
+    } catch (_) {
+        return new Response(JSON.stringify({ error: 'Invalid URL format after auto-completion.' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    item.target = targetUrl;
+    break;
 				case 'message':
 					const message = formData.get('content') as string;
                     if (!message) { return new Response(JSON.stringify({ error: 'Message content cannot be empty.' }), { status: 400, headers: { 'Content-Type': 'application/json' } }); }
