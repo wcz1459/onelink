@@ -1,34 +1,23 @@
-// public/script.js
-
-// 在你的 wrangler.toml 中设置 TURNSTILE_SITE_KEY 后，
-// Pages 会自动将其注入到前端，我们不需要在这里硬编码。
-// 但如果注入失败，可以手动替换下面的值作为备用方案。
-const TURNSTILE_SITE_KEY = '0x4AAAAAABpUuSS5NWXiCyXD';
+// public/script.js (Final Hardened Version)
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 主题切换
+    // --- 主题切换、Tab切换、Go按钮逻辑 (这部分和之前一样，保持不变) ---
     const themeToggle = document.getElementById('theme-toggle');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-
     const applyTheme = (isDark) => {
         document.documentElement.classList.toggle('dark', isDark);
         themeToggle.textContent = isDark ? '☀️' : '🌙';
     };
-
     applyTheme(localStorage.getItem('theme') === 'dark' || (localStorage.getItem('theme') === null && prefersDark.matches));
-    
     themeToggle.addEventListener('click', () => {
         const isDark = document.documentElement.classList.contains('dark');
         localStorage.setItem('theme', !isDark ? 'dark' : 'light');
         applyTheme(!isDark);
     });
     prefersDark.addEventListener('change', (e) => {
-        if (localStorage.getItem('theme') === null) {
-            applyTheme(e.matches);
-        }
+        if (localStorage.getItem('theme') === null) { applyTheme(e.matches); }
     });
 
-    // Tab 切换
     const tabs = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
@@ -37,55 +26,55 @@ document.addEventListener('DOMContentLoaded', () => {
             tab.classList.add('active');
             tabContents.forEach(c => c.classList.remove('active'));
             document.getElementById(tab.dataset.tab).classList.add('active');
-            // 清理其他 tab 的输入
             if (tab.dataset.tab !== 'link') document.getElementById('url-input').value = '';
             if (tab.dataset.tab !== 'message') document.getElementById('message-input').value = '';
             if (tab.dataset.tab !== 'file') document.getElementById('file-input').value = '';
         });
     });
 
-    // Go 按钮逻辑
     const goBtn = document.getElementById('go-btn');
     const accessCodeInput = document.getElementById('access-code');
     const handleGo = () => {
         const value = accessCodeInput.value.trim();
         if (!value) return;
-
         try {
-            const url = new URL(value);
+            new URL(value);
             document.getElementById('url-input').value = value;
             document.querySelector('.tab-btn[data-tab="link"]').click();
-            accessCodeInput.value = ''; // 清空输入框
+            accessCodeInput.value = '';
         } catch (_) {
             window.location.href = `/${value}`;
         }
     };
     goBtn.addEventListener('click', handleGo);
     accessCodeInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            handleGo();
-        }
+        if (e.key === 'Enter') { handleGo(); }
     });
 
-    // 表单提交逻辑
+    // --- 表单提交逻辑 (这是修改的重点) ---
     const createBtn = document.getElementById('create-btn');
     const resultDiv = document.getElementById('result');
     const errorDiv = document.getElementById('error-message');
     
-    // 动态获取 Turnstile Site Key
-    let turnstileSiteKey = 'YOUR_TURNSTILE_SITE_KEY'; // 默认值
+    // 渲染 Turnstile
+    // Pages 部署时会自动注入一个包含 sitekey 的全局对象
+    // 我们从那里安全地获取 sitekey
+    let turnstileSiteKey = '1x00000000000000000000AA'; // 这是一个用于测试的、总会失败的 key
     if (window.CFFeatureFlags && window.CFFeatureFlags.turnstile) {
         turnstileSiteKey = window.CFFeatureFlags.turnstile.sitekey;
     }
-
-    // 渲染 Turnstile
-    window.onloadTurnstileCallback = function () {
+    
+    // 确保 turnstile 对象存在后再调用 render
+    function renderTurnstile() {
         if (typeof turnstile !== 'undefined') {
             turnstile.render('#turnstile-widget', {
                 sitekey: turnstileSiteKey,
             });
         }
-    };
+    }
+    
+    window.onloadTurnstileCallback = renderTurnstile;
+    
     const tsScript = document.createElement('script');
     tsScript.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback';
     tsScript.async = true;
@@ -101,15 +90,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
         
+        // =========================================================
+        //                 !!! 关键修复在这里 !!!
+        // =========================================================
+        const turnstileResponseInput = document.querySelector('[name="cf-turnstile-response"]');
+        const turnstileToken = turnstileResponseInput ? turnstileResponseInput.value : '';
+
+        if (!turnstileToken) {
+            showError('无法获取人机验证令牌，请刷新页面后重试。');
+            createBtn.disabled = false;
+            createBtn.textContent = '生成分享链接';
+            if (typeof turnstile !== 'undefined') { turnstile.reset(); }
+            return; // 提前退出，不发送请求
+        }
+        
+        formData.append('cf-turnstile-response', turnstileToken);
+        // =========================================================
+
         formData.append('type', activeTab);
         formData.append('customCode', document.getElementById('custom-code').value);
         formData.append('password', document.getElementById('password').value);
         formData.append('oneTime', document.getElementById('one-time').checked);
-        
-        const turnstileResponse = document.querySelector('[name="cf-turnstile-response"]');
-        if (turnstileResponse) {
-            formData.append('cf-turnstile-response', turnstileResponse.value);
-        }
 
         if (activeTab === 'url') {
             formData.append('target', document.getElementById('url-input').value);
@@ -127,18 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 body: formData,
             });
-
-            // 总是先尝试解析 JSON，因为我们的后端无论成功失败都返回 JSON
             const data = await response.json();
-
             if (!response.ok) {
-                // 如果 HTTP 状态码不是 2xx，就从 JSON 数据中提取错误信息
                 throw new Error(data.error || `HTTP error! status: ${response.status}`);
             }
-
             showResult(data.shortUrl);
         } catch (err) {
-            // catch 块可以捕获网络错误 (fetch 失败) 和上面 throw 的错误
             showError(err.message);
         } finally {
             createBtn.disabled = false;
@@ -158,20 +153,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const resultUrlInput = document.getElementById('result-url');
         const qrcodeDiv = document.getElementById('qrcode');
         const infoLink = document.getElementById('info-link');
-
         resultUrlInput.value = url;
         infoLink.href = `${url}+`;
-        
         qrcodeDiv.innerHTML = '';
         new QRCode(qrcodeDiv, {
             text: url,
-            width: 128,
-            height: 128,
+            width: 128, height: 128,
             colorDark : document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000',
             colorLight : document.documentElement.classList.contains('dark') ? '#211F26' : '#FFFFFF',
             correctLevel : QRCode.CorrectLevel.H
         });
-
         resultDiv.style.display = 'block';
     };
     
