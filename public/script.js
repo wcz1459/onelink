@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('password', document.getElementById('password').value);
         formData.append('oneTime', document.getElementById('one-time').checked);
 
-        if (activeTab === 'url') {
+        if (activeTab === 'link') {
             formData.append('target', document.getElementById('url-input').value);
         } else if (activeTab === 'message') {
             formData.append('content', document.getElementById('message-input').value);
