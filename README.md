@@ -1,13 +1,13 @@
 # OneLink - Share Everything With One Link
 
 <p align="center">
-  <img src="public/logo.svg" alt="OneLink Logo" width="128" height="128">
+  <img src="https://github.com/Linkium-suki/onelink/public/logo.svg" alt="OneLink Logo" width="128" height="128">
 </p>
 
 <h3 align="center">一个功能强大、美观、完全免费的“万物分享”服务，100% 运行在 Cloudflare 的免费生态之上。</h3>
 
 <p align="center">
-    <a href="https://s.linkium.xyz">
+    <a href="https://1url.icu">
         <img src="https://img.shields.io/badge/Live%20Demo-Visit%20Now-brightgreen" alt="Live Demo">
     </a>
     <a href="#">
@@ -157,6 +157,6 @@
     © 2024 Linkium · Forged with ❤️ and powered by caffeine.
   </p>
   <p>
-    <a href="https://github.com/Linkium/OneLink">GitHub Repo</a>
+    <a href="https://github.com/Linkium-suki/OneLink">GitHub Repo</a>
   </p>
 </div>
