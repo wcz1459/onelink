@@ -1,5 +1,3 @@
-// public/script.js (Final Hardened Version)
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- 主题切换、Tab切换、Go按钮逻辑 (这部分和之前一样，保持不变) ---
     const themeToggle = document.getElementById('theme-toggle');
@@ -51,20 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') { handleGo(); }
     });
 
-    // --- 表单提交逻辑 (这是修改的重点) ---
+    // --- 表单提交逻辑 ---
     const createBtn = document.getElementById('create-btn');
     const resultDiv = document.getElementById('result');
     const errorDiv = document.getElementById('error-message');
     
-    // 渲染 Turnstile
-    // Pages 部署时会自动注入一个包含 sitekey 的全局对象
-    // 我们从那里安全地获取 sitekey
-    let turnstileSiteKey = '0x4AAAAAABpUuSS5NWXiCyXD'; // 这是一个用于测试的、总会失败的 key
-    if (window.CFFeatureFlags && window.CFFeatureFlags.turnstile) {
-        turnstileSiteKey = window.CFFeatureFlags.turnstile.sitekey;
-    }
-    
-    // 确保 turnstile 对象存在后再调用 render
+    // 直接硬编码你的 Site Key
+    const turnstileSiteKey = '0x4AAAAAABpUuSS5NWXiCyXD'; 
+
     function renderTurnstile() {
         if (typeof turnstile !== 'undefined') {
             turnstile.render('#turnstile-widget', {
@@ -90,9 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
         
-        // =========================================================
-        //                 !!! 关键修复在这里 !!!
-        // =========================================================
         const turnstileResponseInput = document.querySelector('[name="cf-turnstile-response"]');
         const turnstileToken = turnstileResponseInput ? turnstileResponseInput.value : '';
 
@@ -101,16 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
             createBtn.disabled = false;
             createBtn.textContent = '生成分享链接';
             if (typeof turnstile !== 'undefined') { turnstile.reset(); }
-            return; // 提前退出，不发送请求
+            return;
         }
         
         formData.append('cf-turnstile-response', turnstileToken);
-        // =========================================================
 
         formData.append('type', activeTab);
         formData.append('customCode', document.getElementById('custom-code').value);
         formData.append('password', document.getElementById('password').value);
         formData.append('oneTime', document.getElementById('one-time').checked);
+        formData.append('expiry', document.getElementById('expiry-select').value);
 
         if (activeTab === 'link') {
             formData.append('target', document.getElementById('url-input').value);

@@ -6,12 +6,13 @@
     <title>OneLink - Share everything with one link</title>
     <meta name="description" content="A modern, secure, and free short link service running entirely on the Cloudflare ecosystem.">
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
+            <img src="/logo.svg" alt="OneLink Logo" class="logo">
             <h1>OneLink</h1>
             <p>Share everything with one link.</p>
             <button id="theme-toggle">🌙</button>
@@ -33,20 +34,25 @@
                 <input type="url" id="url-input" placeholder="https://example.com">
             </div>
             <div id="message" class="tab-content">
-                <textarea id="message-input" rows="5" placeholder="在此输入你的文本或代码片段..."></textarea>
+                <textarea id="message-input" rows="5" placeholder="在此输入你的文本或代码片段 (支持 Markdown)..."></textarea>
             </div>
             <div id="file" class="tab-content">
                 <input type="file" id="file-input">
-                <p class="file-info">最大 25MB, 24小时后自动删除。</p>
+                <p class="file-info">最大 100MB (免费套餐), 24小时后自动删除。</p>
             </div>
 
             <div class="options">
                 <input type="text" id="custom-code" placeholder="自定义短代码 (可选)">
                 <input type="password" id="password" placeholder="设置密码 (可选)">
+                <select id="expiry-select">
+                    <option value="1d">有效期: 1 天</option>
+                    <option value="7d">有效期: 7 天</option>
+                    <option value="30d">有效期: 30 天</option>
+                    <option value="never" selected>有效期: 永久</option>
+                </select>
                 <label><input type="checkbox" id="one-time"> 阅后即焚</label>
             </div>
             
-            <!-- Cloudflare Turnstile Widget -->
             <div id="turnstile-widget"></div>
 
             <button id="create-btn" class="create-btn">生成分享链接</button>
@@ -58,16 +64,20 @@
                     <button id="copy-btn">复制</button>
                 </div>
                 <div id="qrcode"></div>
-                <p><a id="info-link" href="#" target="_blank">查看统计信息</a></p>
+                <p><a id="info-link" href="#" target="_blank">查看访问统计</a></p>
             </div>
             
             <div id="error-message" class="error-card" style="display: none;"></div>
-
         </main>
 
         <footer>
-            <p>Powered by Cloudflare. Design with ❤️.</p>
-            <p>💯©2025 Linkium All rights reserved.🎉</p>
+            <div class="footer-line">
+        <span>Powered by Cloudflare. Design with ❤️.</span>
+        <!-- 直接引用文件 -->
+        <img src="/cflogo.svg" alt="Cloudflare Logo" class="cf-logo">
+    </div>
+    <p class="tribute-text">Cloudflare的恩情还不完🤚😭✋</p>
+    <p class="dev-footer">💯©2025 Linkium All rights reserved.🎉</p>
         </footer>
     </div>
     <script src="script.js" type="module"></script>
