@@ -82,9 +82,27 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
 			switch (type) {
 				case 'link':
-					const targetUrl = formData.get('target') as string;
-                    if (!targetUrl || !/^https?:\/\//.test(targetUrl)) { return new Response(JSON.stringify({ error: 'Invalid URL format.' }), { status: 400, headers: { 'Content-Type': 'application/json' } }); }
+                    // --- 开始替换 ---
+                    let targetUrl = (formData.get('target') as string || '').trim();
+                    
+                    if (!targetUrl) {
+                        return new Response(JSON.stringify({ error: 'URL 不能为空。' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+                    }
+
+                    // 如果用户没有输入 http:// 或 https://，自动为他补上 https://
+                    if (!/^https?:\/\//.test(targetUrl)) {
+                        targetUrl = `https://${targetUrl}`;
+                    }
+                    
+                    // 最后再进行一次严格的格式校验
+                    try {
+                        new URL(targetUrl);
+                    } catch (e) {
+                        return new Response(JSON.stringify({ error: '您输入的 URL 格式无效。' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+                    }
+
 					item.target = targetUrl;
+                    // --- 结束替换 ---
 					break;
 				case 'message':
 					const message = formData.get('content') as string;
