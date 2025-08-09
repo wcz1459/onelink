@@ -1,7 +1,7 @@
 # OneLink - Share Everything With One Link
 
 <p align="center">
-  <img src="[https://github.com/Linkium-suki/onelink/public/logo.svg](https://raw.githubusercontent.com/Linkium-suki/onelink/436bc09ab8cca21d93f00759d7f94932bfd0ab4d/public/logo.svg)" alt="OneLink Logo" width="128" height="128">
+  <img src="https://raw.githubusercontent.com/Linkium-suki/onelink/436bc09ab8cca21d93f00759d7f94932bfd0ab4d/public/logo.svg" alt="OneLink Logo" width="128" height="128">
 </p>
 
 <h3 align="center">一个功能强大、美观、完全免费的“万物分享”服务，100% 运行在 Cloudflare 的免费生态之上。</h3>
